@@ -7,7 +7,7 @@ from typing import Optional
 from jose import jwt, JWTError
 from fastapi.security import OAuth2PasswordRequestForm, OAuth2PasswordBearer
 
-from database import db_dependancy
+from database import get_db
 from models import User
 
 router = APIRouter(prefix="/auth", tags=["auth"])
@@ -101,7 +101,7 @@ def verify_client(current_user: dict = Depends(get_current_user)):
     return current_user
 
 @router.post("/", status_code=status.HTTP_201_CREATED)
-def create_user(db: db_dependancy, user: CreateUserRequest):
+def create_user(user: CreateUserRequest, db: Session = Depends(get_db)):
     #Register a new user
     new_user = User(
         username=user.username,
@@ -115,7 +115,7 @@ def create_user(db: db_dependancy, user: CreateUserRequest):
 
 
 @router.post("/token", response_model=Token)
-def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db: db_dependancy = Depends()):
+def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
  
     # Login user and generate JWT.
     

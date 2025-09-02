@@ -1,15 +1,15 @@
-from main import app
-from fastapi import Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status
 from database import get_db
 from auth import authenticate_user, create_access_token, bcrypt_context, verify_instructor, verify_client
 from sqlalchemy.orm import Session
 import models, schemas
 from fastapi.security import OAuth2PasswordRequestForm
-import datetime
 from datetime import datetime
 
+router = APIRouter()
+
 # POST /signup
-@app.post("/signup")
+@router.post("/signup")
 def signup(request: schemas.UserCreate, db: Session = Depends(get_db)):
     """
     Endpoint to register a new user.
@@ -39,7 +39,7 @@ def signup(request: schemas.UserCreate, db: Session = Depends(get_db)):
     return {"msg": "User created successfully"}
 
 
-@app.post("/login")
+@router.post("/login")
 def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(get_db)):
     """
     Endpoint to log in a user.
@@ -63,7 +63,7 @@ def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depend
     }
 
 
-@app.post('/classes')
+@router.post('/classes')
 def new_classes(request: schemas.ClassCreate, db: Session = Depends(get_db), current_user: dict = Depends(verify_instructor)):
     """
     Endpoint to create a new fitness class.
@@ -82,7 +82,7 @@ def new_classes(request: schemas.ClassCreate, db: Session = Depends(get_db), cur
     return {"msg": "Class created successfully", "class_id": new_class.id}
 
 
-@app.get("/classes")
+@router.get("/classes")
 def upcoming_classes(db: Session = Depends(get_db)):
     """
     Endpoint to fetch all upcoming fitness classes.
@@ -102,7 +102,7 @@ def upcoming_classes(db: Session = Depends(get_db)):
     ]
 
 
-@app.post("/book")
+@router.post("/book")
 def book_slot(request: schemas.BookingRequest, db: Session = Depends(get_db), current_user: dict = Depends(verify_client)):
     """
     Endpoint to book a slot in a fitness class.
@@ -145,7 +145,7 @@ def book_slot(request: schemas.BookingRequest, db: Session = Depends(get_db), cu
     }
 
 
-@app.get('/book')
+@router.get('/book')
 def get_book_classes():
     """
     Placeholder endpoint for fetching booked classes.
@@ -154,7 +154,7 @@ def get_book_classes():
     pass
 
 
-@app.get("/bookings")
+@router.get("/bookings")
 def view_user_bookings(db: Session = Depends(get_db), current_user: dict = Depends(verify_client)):
     """
     Endpoint to view all bookings made by the authenticated user.
